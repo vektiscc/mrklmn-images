@@ -2,6 +2,7 @@ import { v2 as cloudinary } from 'cloudinary'
 import formidable from 'formidable'
 import fs from 'fs'
 import type { NextApiRequest, NextApiResponse } from 'next'
+import crypto from 'crypto'
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -41,7 +42,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         unique_filename: false,
       })
 
-      res.status(200).json({ url: result.secure_url })
+      const deleteToken = crypto.randomBytes(16).toString('hex')
+
+      // заметкка на будущее - можно хранить связку public_id + deleteToken в JSON или бд потом
+
+      res.status(200).json({
+        url: result.secure_url,
+        delete_url: `https://${req.headers.host}/api/delete?public_id=${encodeURIComponent(result.public_id)}&token=${deleteToken}`,
+        public_id: result.public_id,
+        delete_token: deleteToken
+      })
     } catch (uploadErr) {
       console.error(uploadErr)
       res.status(500).json({ error: 'Ошибка при загрузке файла в Cloudinary' })
