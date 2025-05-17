@@ -1,6 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary'
 import formidable, { Fields, Files, File } from 'formidable'
-import fs from 'fs'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import crypto from 'crypto'
 
@@ -35,7 +34,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(500).json({ error: 'Ошибка при разборе формы' })
     }
 
-    const file = Array.isArray(files.file) ? files.file[0] : files.file as File | undefined
+    let file: File | undefined
+    if (Array.isArray(files.file)) {
+      file = files.file[0]
+    } else {
+      file = files.file
+    }
 
     if (!file) {
       return res.status(400).json({ error: 'Файл не найден' })
@@ -54,7 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         url: result.secure_url,
         delete_url: `https://${req.headers.host}/api/delete?public_id=${encodeURIComponent(result.public_id)}&token=${deleteToken}`,
         public_id: result.public_id,
-        delete_token: deleteToken
+        delete_token: deleteToken,
       })
     } catch (uploadErr) {
       console.error(uploadErr)
