@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { v2 as cloudinary } from 'cloudinary'
+import crypto from 'crypto'
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -7,12 +8,10 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
-// Временное хранилище токенов (будет очищаться при перезапуске пока нет хостинга)
-const deleteTokens: Record<string, string> = {}
-
-// Функция для запоминания токена (временно, потом убрать не забыть)
-export function storeDeleteToken(publicId: string, token: string) {
-  deleteTokens[publicId] = token
+function generateToken(publicId: string): string {
+  return crypto.createHmac('sha256', process.env.DELETE_SECRET || 'default_secret')
+    .update(publicId)
+    .digest('hex')
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -26,13 +25,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Missing parameters' })
   }
 
-  if (deleteTokens[public_id] !== token) {
+  const validToken = generateToken(public_id)
+
+  if (token !== validToken) {
     return res.status(403).json({ error: 'Invalid delete token' })
   }
 
   try {
     await cloudinary.uploader.destroy(public_id)
-    delete deleteTokens[public_id]
     return res.status(200).json({ success: true, message: 'Image deleted successfully' })
   } catch (err) {
     console.error(err)
