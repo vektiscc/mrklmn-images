@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ success: false, message: 'Missing parameters' });
   }
 
-  const secret = process.env.DELETE_TOKEN_SECRET;
+ const secret = process.env.DELETE_SECRET;
   if (!secret) {
     return res.status(500).json({ success: false, message: 'Missing server secret' });
   }
