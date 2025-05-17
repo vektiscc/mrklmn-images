@@ -10,6 +10,12 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
+function generateToken(publicId: string): string {
+  return crypto.createHmac('sha256', process.env.DELETE_SECRET || 'default_secret')
+    .update(publicId)
+    .digest('hex')
+}
+
 export const config = {
   api: {
     bodyParser: false,
@@ -42,9 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         unique_filename: false,
       })
 
-      const deleteToken = crypto.randomBytes(16).toString('hex')
-
-      // заметкка на будущее - можно хранить связку public_id + deleteToken в JSON или бд потом
+      const deleteToken = generateToken(result.public_id)
 
       res.status(200).json({
         url: result.secure_url,
