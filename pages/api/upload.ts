@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary'
-import formidable, { Fields, Files, File } from 'formidable'
+import formidable, { File } from 'formidable'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import crypto from 'crypto'
 
@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const form = formidable()
 
-  form.parse(req, async (err: Error | null, fields: Fields, files: Files) => {
+  form.parse(req, async (err: Error | null, fields: Record<string, any>, files: Record<string, File | File[]>) => {
     if (err) {
       console.error(err)
       return res.status(500).json({ error: 'Ошибка при разборе формы' })
