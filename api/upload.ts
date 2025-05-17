@@ -1,13 +1,11 @@
-import { IncomingForm } from 'formidable';
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { v2 as cloudinary } from 'cloudinary';
+import formidable from 'formidable';
 import fs from 'fs';
-import path from 'path';
-import cloudinary from 'cloudinary';
 
-cloudinary.v2.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
-  api_key: process.env.CLOUDINARY_API_KEY!,
-  api_secret: process.env.CLOUDINARY_API_SECRET!,
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 export const config = {
@@ -16,25 +14,24 @@ export const config = {
   },
 };
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const form = new IncomingForm({ uploadDir: '/tmp', keepExtensions: true });
+  const form = new formidable.IncomingForm();
 
   form.parse(req, async (err, fields, files) => {
-    if (err) return res.status(500).json({ error: 'Error parsing form data' });
-
-    const file = files.file;
-    if (!file || Array.isArray(file)) {
+    if (err || !files.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    const filepath = files.file[0].filepath;
+
     try {
-      const uploadResult = await cloudinary.v2.uploader.upload(file.filepath);
-      return res.status(200).json({ url: uploadResult.secure_url });
-    } catch (error) {
+      const result = await cloudinary.uploader.upload(filepath);
+      return res.status(200).json({ url: result.secure_url });
+    } catch (e) {
       return res.status(500).json({ error: 'Cloudinary upload failed' });
     }
   });
