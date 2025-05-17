@@ -45,8 +45,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Файл не найден' })
     }
 
+    // Приведение типа, чтобы TS понимал, что есть filepath
+    const filepath = (file as any).filepath || (file as any).path
+
+    if (!filepath) {
+      return res.status(500).json({ error: 'Путь к файлу не найден' })
+    }
+
     try {
-      const result = await cloudinary.uploader.upload(file.filepath, {
+      const result = await cloudinary.uploader.upload(filepath, {
         folder: 'uploads',
         use_filename: true,
         unique_filename: false,
