@@ -1,31 +1,36 @@
-const formidable = require("formidable");
-const fs = require("fs");
-const path = require("path");
+import formidable from 'formidable';
+import fs from 'fs';
+import path from 'path';
 
-module.exports.config = {
+export const config = {
   api: {
-    bodyParser: false,
-  },
+    bodyParser: false
+  }
 };
 
-module.exports.default = async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const uploadsDir = path.join(process.cwd(), "uploads");
-  fs.mkdirSync(uploadsDir, { recursive: true });
+  const uploadDir = path.join(process.cwd(), 'uploads');
 
-  const form = formidable({ multiples: false, uploadDir: uploadsDir, keepExtensions: true });
+  // Создание папки, если нет
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+  }
+
+  const form = formidable({ uploadDir, keepExtensions: true });
 
   form.parse(req, (err, fields, files) => {
     if (err) {
-      return res.status(500).json({ error: "Upload failed" });
+      console.error(err);
+      return res.status(500).json({ error: 'Failed to parse form data' });
     }
 
-    const file = files.file;
-    const fileName = path.basename(file.filepath);
-    const fileUrl = `/uploads/${fileName}`;
+    const file = files.file[0]; // используем индекс [0], так как formidable возвращает массив
+    const fileUrl = `https://${req.headers.host}/uploads/${path.basename(file.filepath)}`;
+
     res.status(200).json({ url: fileUrl });
   });
-};
+}
