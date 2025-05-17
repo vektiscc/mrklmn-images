@@ -1,5 +1,6 @@
-import { writeFile } from 'fs/promises';
-import path from 'path';
+import formidable from "formidable";
+import fs from "fs";
+import path from "path";
 
 export const config = {
   api: {
@@ -7,25 +8,24 @@ export const config = {
   },
 };
 
-import formidable from 'formidable';
-
 export default async function handler(req, res) {
-  const form = formidable({ multiples: false, uploadDir: "./uploads", keepExtensions: true });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-  form.parse(req, async (err, fields, files) => {
+  const uploadsDir = path.join(process.cwd(), "uploads");
+  fs.mkdirSync(uploadsDir, { recursive: true });
+
+  const form = formidable({ multiples: false, uploadDir: uploadsDir, keepExtensions: true });
+
+  form.parse(req, (err, fields, files) => {
     if (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Upload failed' });
-      return;
+      return res.status(500).json({ error: "Upload failed" });
     }
 
-    const file = files.file;
-    if (!file) {
-      res.status(400).json({ error: 'No file uploaded' });
-      return;
-    }
-
-    const filename = path.basename(file[0].filepath);
-    res.status(200).json({ url: `https://${req.headers.host}/uploads/${filename}` });
+    const file = files.file[0];
+    const fileName = path.basename(file.filepath);
+    const fileUrl = `/uploads/${fileName}`;
+    res.status(200).json({ url: fileUrl });
   });
 }
