@@ -1,7 +1,6 @@
 {
-  "name": "mrklmn-images",
-  "version": "1.0.0",
   "dependencies": {
+    "cloudinary": "^1.39.2",
     "formidable": "^3.5.0"
   }
 }
