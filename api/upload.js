@@ -1,14 +1,14 @@
-import formidable from "formidable";
-import fs from "fs";
-import path from "path";
+const formidable = require("formidable");
+const fs = require("fs");
+const path = require("path");
 
-export const config = {
+module.exports.config = {
   api: {
     bodyParser: false,
   },
 };
 
-export default async function handler(req, res) {
+module.exports.default = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -23,9 +23,9 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Upload failed" });
     }
 
-    const file = files.file[0];
+    const file = files.file;
     const fileName = path.basename(file.filepath);
     const fileUrl = `/uploads/${fileName}`;
     res.status(200).json({ url: fileUrl });
   });
-}
+};
