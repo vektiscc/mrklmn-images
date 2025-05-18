@@ -1,8 +1,25 @@
 {
   "version": 2,
   "functions": {
-    "pages/api/**/*.ts": {
-      "runtime": "vercel-node@2.0.0"
+    "pages/api/*.ts": {
+      "maxDuration": 10
     }
-  }
+  },
+  "routes": [
+    {
+      "src": "/api/upload",
+      "methods": ["POST"],
+      "dest": "pages/api/upload.ts"
+    },
+    {
+      "src": "/api/delete",
+      "methods": ["POST"],
+      "dest": "pages/api/delete.ts"
+    },
+    {
+      "src": "/api/test",
+      "methods": ["GET"],
+      "dest": "pages/api/test.ts"
+    }
+  ]
 }
