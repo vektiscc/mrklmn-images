@@ -1,36 +1,25 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import crypto from 'crypto';
-import { cloudinary } from '../../lib/cloudinary';
+import { NextApiRequest, NextApiResponse } from 'next';
+import cloudinary from 'cloudinary';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ success: false, message: 'Method Not Allowed' });
+cloudinary.v2.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== 'DELETE') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { public_id, token } = req.query;
-
-  if (!public_id || !token || typeof public_id !== 'string' || typeof token !== 'string') {
-    return res.status(400).json({ success: false, message: 'Missing parameters' });
-  }
-
- const secret = process.env.DELETE_SECRET;
-  if (!secret) {
-    return res.status(500).json({ success: false, message: 'Missing server secret' });
-  }
-
-  const expectedToken = crypto.createHmac('sha256', secret).update(public_id).digest('hex');
-  if (token !== expectedToken) {
-    return res.status(403).json({ success: false, message: 'Invalid token' });
-  }
-
+  const { public_id } = req.body;
   try {
-    const result = await cloudinary.uploader.destroy(public_id, { invalidate: true });
-    if (result.result === 'ok') {
-      return res.status(200).json({ success: true, message: 'Image deleted successfully' });
-    } else {
-      return res.status(500).json({ success: false, message: 'Cloudinary deletion failed', result });
-    }
+    await cloudinary.v2.uploader.destroy(public_id);
+    return res.status(200).json({ success: true });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Server error', error });
+    return res.status(500).json({ error: 'Ошибка удаления' });
   }
 }
