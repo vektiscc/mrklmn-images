@@ -1,75 +1,40 @@
-import { v2 as cloudinary } from 'cloudinary'
-import formidable, { File } from 'formidable'
-import type { NextApiRequest, NextApiResponse } from 'next'
-import crypto from 'crypto'
+import { NextApiRequest, NextApiResponse } from 'next';
+import cloudinary from 'cloudinary';
+import formidable from 'formidable';
 
-cloudinary.config({
+cloudinary.v2.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
-})
-
-function generateToken(publicId: string): string {
-  return crypto.createHmac('sha256', process.env.DELETE_SECRET || 'default_secret')
-    .update(publicId)
-    .digest('hex')
-}
+});
 
 export const config = {
   api: {
     bodyParser: false,
   },
-}
+};
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const form = formidable()
+  const form = formidable();
 
-  form.parse(req, async (err: Error | null, fields: Record<string, any>, files: Record<string, File | File[]>) => {
+  form.parse(req, async (err, _, files) => {
     if (err) {
-      console.error(err)
-      return res.status(500).json({ error: 'Ошибка при разборе формы' })
+      return res.status(500).json({ error: 'Ошибка загрузки файла' });
     }
 
-    let file: File | undefined
-    if (Array.isArray(files.file)) {
-      file = files.file[0]
-    } else {
-      file = files.file
-    }
-
-    if (!file) {
-      return res.status(400).json({ error: 'Файл не найден' })
-    }
-
-    // Приведение типа, чтобы TS понимал, что есть filepath
-    const filepath = (file as any).filepath || (file as any).path
-
-    if (!filepath) {
-      return res.status(500).json({ error: 'Путь к файлу не найден' })
-    }
-
+    const file = files.file as formidable.File;
     try {
-      const result = await cloudinary.uploader.upload(filepath, {
-        folder: 'uploads',
-        use_filename: true,
-        unique_filename: false,
-      })
-
-      const deleteToken = generateToken(result.public_id)
-
-      res.status(200).json({
-        url: result.secure_url,
-        delete_url: `https://${req.headers.host}/api/delete?public_id=${encodeURIComponent(result.public_id)}&token=${deleteToken}`,
-        public_id: result.public_id,
-        delete_token: deleteToken,
-      })
-    } catch (uploadErr) {
-      console.error(uploadErr)
-      res.status(500).json({ error: 'Ошибка при загрузке файла в Cloudinary' })
+      const result = await cloudinary.v2.uploader.upload(file.filepath);
+      return res.status(200).json({ url: result.secure_url });
+    } catch (error) {
+      return res.status(500).json({ error: 'Ошибка Cloudinary' });
     }
-  })
+  });
 }
