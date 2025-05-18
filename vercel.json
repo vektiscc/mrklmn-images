@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "pages/api/*.ts": {
-      "runtime": "nodejs@22.0.0",
+      "runtime": "nodejs@18.0.0",
       "maxDuration": 10
     }
   }
