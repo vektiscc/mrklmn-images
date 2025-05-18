@@ -2,15 +2,15 @@
   "version": 2,
   "functions": {
     "pages/api/upload.ts": {
-      "runtime": "vercel-node@20.x",
+      "runtime": "nodejs20.x",
       "maxDuration": 10
     },
     "pages/api/delete.ts": {
-      "runtime": "vercel-node@20.x",
+      "runtime": "nodejs20.x",
       "maxDuration": 10
     },
     "pages/api/test.ts": {
-      "runtime": "vercel-node@20.x",
+      "runtime": "nodejs20.x",
       "maxDuration": 10
     }
   }
