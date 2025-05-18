@@ -2,19 +2,15 @@
   "compilerOptions": {
     "target": "es5",
     "lib": ["dom", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "module": "esnext",
+    "module": "commonjs",
     "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noEmit": true,
     "resolveJsonModule": true,
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["./*"]
-    }
+    "jsx": "react"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/**/*.ts", "pages/**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": ["pages/**/*.ts", "pages/**/*.tsx"]
 }
