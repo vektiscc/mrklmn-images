@@ -1,10 +1,10 @@
 {
   "version": 2,
   "functions": {
-    "api/upload.ts": {
+    "pages/api/upload.ts": {
       "maxDuration": 10
     },
-    "api/delete.ts": {
+    "pages/api/delete.ts": {
       "maxDuration": 10
     }
   },
@@ -12,12 +12,12 @@
     {
       "src": "/api/upload",
       "methods": ["POST"],
-      "dest": "api/upload.ts"
+      "dest": "pages/api/upload.ts"
     },
     {
       "src": "/api/delete",
       "methods": ["GET"],
-      "dest": "api/delete.ts"
+      "dest": "pages/api/delete.ts"
     }
   ]
 }
