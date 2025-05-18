@@ -1,14 +1,3 @@
 {
-  "version": 2,
-  "functions": {
-    "api/upload.ts": {
-      "maxDuration": 10
-    }
-  },
-"routes": [
-  {
-    "src": "^/api/upload$",
-    "methods": ["POST"],
-    "dest": "api/upload.ts"
-  }
-]
+  "version": 2
+}
