@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import formidable from 'formidable'
+import { IncomingForm, File } from 'formidable'
 import { v2 as cloudinary } from 'cloudinary'
 
 // Настройка Cloudinary
@@ -9,11 +9,14 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
-// Отключаем встроенный парсер Next.js
 export const config = {
   api: {
     bodyParser: false,
   },
+}
+
+interface ProcessedFiles {
+  file: File[]
 }
 
 export default async function handler(
@@ -25,21 +28,31 @@ export default async function handler(
   }
 
   try {
-    const form = formidable()
-    
-    const [fields, files] = await new Promise<[formidable.Fields, formidable.Files]>((resolve, reject) => {
-      form.parse(req, (err, fields, files) => {
-        if (err) reject(err)
-        resolve([fields, files])
-      })
+    const data = await new Promise<{ fields: any; files: ProcessedFiles }>(
+      (resolve, reject) => {
+        const form = new IncomingForm()
+        
+        form.parse(req, (err, fields, files) => {
+          if (err) return reject(err)
+          resolve({ fields, files: files as ProcessedFiles })
+        })
+      }
+    )
+
+    const file = data.files.file[0]
+    const result = await cloudinary.uploader.upload(file.filepath, {
+      folder: 'uploads'
     })
 
-    const file = files.file as formidable.File
-    const result = await cloudinary.uploader.upload(file.filepath)
-    
-    return res.status(200).json({ url: result.secure_url })
+    return res.status(200).json({ 
+      url: result.secure_url,
+      public_id: result.public_id
+    })
   } catch (error) {
     console.error('Upload error:', error)
-    return res.status(500).json({ error: 'Internal server error' })
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : String(error)
+    })
   }
 }
