@@ -1,6 +1,15 @@
 {
   "version": 2,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+  "functions": {
+    "pages/api/upload.ts": {
+      "maxDuration": 10
+    }
+  },
+  "routes": [
+    {
+      "src": "pages/api/upload",
+      "methods": ["POST"],
+      "dest": "pages/api/upload.ts"
+    }
   ]
 }
