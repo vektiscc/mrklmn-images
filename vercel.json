@@ -2,15 +2,15 @@
   "version": 2,
   "functions": {
     "pages/api/upload.ts": {
-      "runtime": "nodejs20.x",
+      "runtime": "nodejs@22.x",
       "maxDuration": 10
     },
     "pages/api/delete.ts": {
-      "runtime": "nodejs20.x",
+      "runtime": "nodejs@22.x",
       "maxDuration": 10
     },
     "pages/api/test.ts": {
-      "runtime": "nodejs20.x",
+      "runtime": "nodejs@22.x",
       "maxDuration": 10
     }
   }
