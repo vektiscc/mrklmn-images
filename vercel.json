@@ -12,12 +12,12 @@
     {
       "src": "/api/upload",
       "methods": ["POST"],
-      "dest": "pages/api/upload.ts"
+      "dest": "/pages/api/upload.ts"
     },
     {
       "src": "/api/delete",
       "methods": ["GET"],
-      "dest": "pages/api/delete.ts"
+      "dest": "/pages/api/delete.ts"
     }
   ]
 }
