@@ -1,13 +1,7 @@
 {
   "version": 2,
   "functions": {
-    "pages/api/upload.ts": {
-      "runtime": "vercel-node@2.0.0"
-    },
-    "pages/api/delete.ts": {
-      "runtime": "vercel-node@2.0.0"
-    },
-    "pages/api/test.ts": {
+    "pages/api/**/*.ts": {
       "runtime": "vercel-node@2.0.0"
     }
   }
